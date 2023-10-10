@@ -1,7 +1,7 @@
 ﻿
 namespace Application.DTOs
 {
-    public sealed class UserAuthDto
+    public sealed record UserAuthDto
     {
         public string Email { get; set; }
         public string Password { get; set; }

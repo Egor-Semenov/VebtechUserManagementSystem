@@ -1,7 +1,7 @@
 using Application.Mappers;
+using Application.Middleware;
 using Microsoft.OpenApi.Models;
 using VebtechTask.Api.Extentions;
-
 
 namespace VebtechTask.Api
 {
@@ -11,7 +11,7 @@ namespace VebtechTask.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddAutoMapper(typeof(MappingProfile));
+            builder.Services.AddAutoMapper(typeof(UserMapper));
             builder.Services.ConfigureSqlConnection(builder.Configuration);
             builder.Services.ConfigureJwt(builder.Configuration);
             builder.Services.ConfigureRepositories();
@@ -37,6 +37,8 @@ namespace VebtechTask.Api
                     x.SwaggerEndpoint("/swagger/v1/swagger.json", "User Management V1");
                 });
             }
+
+            app.UseMiddleware<ErrorHandlingMiddleware>();
 
             app.UseHttpsRedirection();
 

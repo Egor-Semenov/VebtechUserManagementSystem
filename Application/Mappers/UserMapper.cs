@@ -4,9 +4,9 @@ using Domain.Models.Entities;
 
 namespace Application.Mappers
 {
-    public sealed class MappingProfile : Profile
+    public sealed class UserMapper : Profile
     {
-        public MappingProfile()
+        public UserMapper()
         {
             CreateMap<User, UserDto>()
                 .ForMember(x => x.Roles, opt => opt.MapFrom(x => x.Roles.Select(x => x.Role)));

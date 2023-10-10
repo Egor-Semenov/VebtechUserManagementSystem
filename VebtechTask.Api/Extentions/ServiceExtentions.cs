@@ -1,8 +1,8 @@
 ﻿using Application.DTOs;
 using Application.Services;
+using Application.Services.Interfaces;
 using Application.Validators;
 using Domain.Interfaces.Repositories;
-using Domain.Interfaces.Services;
 using Domain.Models.Entities;
 using FluentValidation;
 using Infrastructure.Persistence.Contexts;
@@ -87,12 +87,12 @@ namespace VebtechTask.Api.Extentions
         {
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<ILoggerService, LoggerService>();
         }
 
         public static void ConfigureValidators(this IServiceCollection services)
         {
-            services.AddScoped<IValidator<UserRegistrationDto>, UserValidator>();
+            services.AddScoped<IValidator<UserRegistrationDto>, UserRegistrationValidator>();
+            services.AddScoped<IValidator<UserUpdateDto>, UserUpdateValidator>();
             services.AddScoped<IValidator<UserAuthDto>, UserAuthValidator>();
         }
     }

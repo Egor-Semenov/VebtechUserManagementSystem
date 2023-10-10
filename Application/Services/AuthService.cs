@@ -1,7 +1,7 @@
-﻿using Domain.Interfaces.Repositories;
-using Domain.Interfaces.Services;
-using Domain.Models.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Application.DTOs;
+using Application.Middleware;
+using Application.Services.Interfaces;
+using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,25 +13,42 @@ namespace Application.Services
     public sealed class AuthService : IAuthService
     {
         private readonly IConfiguration _configuration;
-        private readonly IBaseRepository<User> _userRepository;
+        private readonly IUserService _userService;
+        private readonly IValidator<UserAuthDto> _authValidator;
 
-        public AuthService(IConfiguration configuration, IBaseRepository<User> userRepository)
+        public AuthService(
+            IConfiguration configuration, 
+            IUserService userService, 
+            IValidator<UserAuthDto> authValidator
+            )
         {
             _configuration = configuration;
-            _userRepository = userRepository;
+            _userService = userService;
+            _authValidator = authValidator;
         }
 
-        public Task CreateUserAsync(User user) =>
-            _userRepository.Create(user);
-
-        public async Task<bool> ValidateUser(string email, string password)
+        public async Task ValidateUserAsync(UserAuthDto userAuthDto)
         {
-            var user = await _userRepository.FindByCondition(x => x.Email == email).FirstOrDefaultAsync();
+            var validationResult = _authValidator.Validate(userAuthDto);
+            if (!validationResult.IsValid)
+            {
+                var stringBuilder = new StringBuilder();
+                foreach (var error in validationResult.Errors)
+                {
+                    stringBuilder.AppendLine(error.ErrorMessage);
+                }
 
-            return user == null || !ValidatePassword(password, user.PasswordHash);
+                throw new BadRequestException(stringBuilder.ToString().Trim());
+            }
+
+            var user = await _userService.GetUserByEmailAsync(userAuthDto.Email);
+            if (user == null || !ValidatePassword(userAuthDto.Password, user.PasswordHash))
+            {
+                throw new UnauthorizedException("Invalid email or password");
+            }
         }
 
-        public Task<string> CreateToken(string email) => Task.FromResult(GenerateJwtToken(email));
+        public string CreateToken(string email) => GenerateJwtToken(email);
 
         private string GenerateJwtToken(string email)
         {

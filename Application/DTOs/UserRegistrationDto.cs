@@ -2,7 +2,7 @@
 
 namespace Application.DTOs
 {
-    public class UserRegistrationDto
+    public sealed record UserRegistrationDto
     {
         public string Name { get; set; }
         public int Age { get; set; }
