@@ -9,11 +9,12 @@ namespace Application.Mappers
         public UserMapper()
         {
             CreateMap<User, UserDto>()
-                .ForMember(x => x.Roles, opt => opt.MapFrom(x => x.Roles.Select(x => x.Role)));
+                .ForMember(dest => dest.Roles, opt => opt.MapFrom(x => x.Roles.Select(x => x.Role)));
 
             CreateMap<UserRegistrationDto, User>()
-                .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => BCrypt.Net.BCrypt.HashPassword(src.Password)))
-                .ForMember(x => x.Roles, opt => opt.Ignore());
+                .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(x => BCrypt.Net.BCrypt.HashPassword(x.Password)))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(x => x.Email.ToLower()))
+                .ForMember(dest => dest.Roles, opt => opt.Ignore());
         }
     }
 }

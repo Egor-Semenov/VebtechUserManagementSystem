@@ -3,7 +3,6 @@ using Application.Filters;
 using Application.Services.Interfaces;
 using AutoMapper;
 using Domain.Models.Enums;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -16,22 +15,16 @@ namespace VebtechTask.Api.Controllers
     public sealed class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly IValidator<UserRegistrationDto> _userRegistrationValidator;
-        private readonly IValidator<UserUpdateDto> _userUpdateValidator;
         private readonly IMapper _mapper;
         private readonly ILogger<UserController> _logger;
 
         public UserController(
             IUserService userService, 
-            IValidator<UserRegistrationDto> userRegistrationValidator, 
-            IValidator<UserUpdateDto> userUpdateValidator,
             IMapper mapper,
             ILogger<UserController> logger
             )
         {
             _userService = userService;
-            _userRegistrationValidator = userRegistrationValidator;
-            _userUpdateValidator = userUpdateValidator;
             _mapper = mapper;
             _logger = logger;
         }
@@ -54,9 +47,11 @@ namespace VebtechTask.Api.Controllers
         [HttpGet("users")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [SwaggerOperation(Summary = "Get all users", Description = "Retrieves a list of all users.")]
         [SwaggerResponse(StatusCodes.Status200OK, "List of users retrieved successfully.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "User isn't authorized.")]
         public async Task<ActionResult<List<UserDto>>> GetAllUsers(
             [FromQuery] UserQueryFilterModel filterModel,
             [FromQuery] int page = 1,
@@ -73,10 +68,12 @@ namespace VebtechTask.Api.Controllers
         [HttpGet("users/{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(Summary = "Get user by id", Description = "Retrieves a user by id.")]
         [SwaggerResponse(StatusCodes.Status200OK, "User retrieved by id successfully.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request.")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "User isn't authorized.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "No user found.")]
         public async Task<ActionResult<UserDto>> GetUserByIdAsync(int userId)
         {
@@ -88,9 +85,11 @@ namespace VebtechTask.Api.Controllers
         [Authorize]
         [HttpDelete("delete-user/{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(Summary = "Delete user by id", Description = "Delete a user by id.")]
         [SwaggerResponse(StatusCodes.Status200OK, "User deleted by id successfully.")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "User isn't authorized.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "User doesn't exist.")]
         public async Task<IActionResult> DeleteUserAsync(int userId)
         {
@@ -103,10 +102,12 @@ namespace VebtechTask.Api.Controllers
         [HttpPut("update-user/{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(Summary = "Update user by id", Description = "Update a user by id.")]
         [SwaggerResponse(StatusCodes.Status200OK, "User updated successfully.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request or user with the same email already exists.")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "User isn't authorized.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "User doesn't exist")]
         public async Task<IActionResult> UpdateUserAsync(int userId, [FromBody] UserUpdateDto updateUserDto)
         {
@@ -120,10 +121,12 @@ namespace VebtechTask.Api.Controllers
         [HttpPut("add-role/{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(Summary = "Add new role to user", Description = "Adds a new role to a user.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Role added successfully.")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request or user already has the role.")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "User isn't authorized.")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "User doesn't exist")]
         public async Task<IActionResult> AddRoleToUserAsync(int userId, [Required, FromQuery] Roles newRole)
         {

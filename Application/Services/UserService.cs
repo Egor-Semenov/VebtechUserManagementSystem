@@ -161,13 +161,13 @@ namespace Application.Services
                 throw new NotFoundException($"No user found with id {userId}.");
             }
 
-            if (userUpdateDto.Email != user.Email)
+            if (userUpdateDto.Email.ToLower() != user.Email.ToLower())
             {
                 await ValidateUserUniqueEmail(userUpdateDto.Email);
             }
 
             user.Name = userUpdateDto.Name;
-            user.Email = userUpdateDto.Email;
+            user.Email = userUpdateDto.Email.ToLower();
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userUpdateDto.Password);
             user.Age = userUpdateDto.Age;
             user.Roles = new List<UserRoles>();

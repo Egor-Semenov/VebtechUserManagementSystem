@@ -58,8 +58,8 @@ namespace Application.Middleware
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)statusCode;
 
-            //var errorResponse = new ErrorResponse { Message = message };
-            var jsonError = JsonSerializer.Serialize(message);
+            var errorResponse = new ErrorResponse { Message = message };
+            var jsonError = JsonSerializer.Serialize(errorResponse);
 
             await context.Response.WriteAsync(jsonError);
         }
