@@ -1,4 +1,4 @@
-﻿using Domain.Models.Enums;
+﻿using Domain.Models.Enums; 
 
 namespace Application.DTOs
 {
